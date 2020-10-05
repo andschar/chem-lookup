@@ -1,0 +1,23 @@
+cas	CAS
+inchi	InChi
+inchikey	InChi Key
+smiles	SMILES code
+formula	Chemical formula
+definition	Definition of the chemical
+checked	Has the data entry been manually checked?
+alw_cname	Alan Wood Pesticide Compendium Common name
+che_cname	ChEBI Common name
+che_id	ChEBI ID
+chl_id	CHEMBL ID
+chs_csid	ChemSpider ID
+drb_id	Drugbank ID
+eea_cname	EEA Common name
+ein_id	EINEC ID
+etx_cname	Etox Common name
+etx_id	Etox ID
+ipc_name	IUPAC name
+puc_cid	PubChem ID
+uni_id	UNII ID
+wid_cname	Wikidata Common name
+wid_id	Wikidata ID
+zvg_id	ZVG ID
