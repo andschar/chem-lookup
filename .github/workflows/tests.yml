@@ -25,9 +25,8 @@ jobs:
         run: |
           install.packages(c("testthat", "data.table"))
         shell: Rscript {0}
-      
-        
+              
       - name: Tests
         run: |
-          Rscript testthat::test_dir('tests')
+          R -e "testthat::test_dir('tests')"
         shell: Rscript {0}
