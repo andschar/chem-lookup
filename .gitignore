@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+cred/
+data/
+DEPRECATED/
+tests/
+
+# package
+chemlook_*
+
