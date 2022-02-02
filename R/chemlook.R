@@ -5,16 +5,24 @@
 #' @noRd
 #' 
 fl_download = function() {
-  tmp = file.path(tempdir(), 'chemlook.rds')
+  tmp = file.path(tempdir(), 'chemlook.sqlite3')
   if (!file.exists(tmp)) {
     message('Downloading data..')
-    qurl = 'https://zenodo.org/record/5947275/files/chemlook.rds'
-    
-    utils::download.file(qurl, 
+    qurl = 'https://zenodo.org/record/6044681/files/chemlook.sqlite3'
+    utils::download.file(qurl,
                          destfile = tmp,
                          quiet = TRUE)
   }
-  readRDS(tmp)
+  con = DBI::dbConnect(RSQLite::SQLite(), tmp)
+  # TODO convert the whole process to actual SQL queries at some point.
+  cl_id = DBI::dbGetQuery(con, "SELECT * FROM cl_id")
+  setDT(cl_id)
+  cl_class = DBI::dbGetQuery(con, "SELECT * FROM cl_class")
+  setDT(cl_class)
+  DBI::dbDisconnect(con)
+  
+  return(list(cl_id = cl_id,
+              cl_class = cl_class))
 }
 
 #' Query the chemical lookup up database..
@@ -24,7 +32,7 @@ fl_download = function() {
 #' @param query A query string.
 #' @param from Which identifier should the query string be matched against? See
 #' details for more information.
-#' @param match_query Should the query be matched exactly (defau) or fuzzily?
+#' @param match_query Should the query be matched exactly (default) or fuzzily?
 #'
 #' @details The from argument can be one of the following identifiers: 
 #' \itemize{
@@ -69,12 +77,12 @@ cl_query = function(query = NULL,
   if (!is.null(query) && is.null(from)) {
     stop('Please provide a from argument.')
   }
-  match_query = match.arg(match_query, choices = c('fuzzy', 'exact'))
   from = match.arg(from, choices = 
                      c('cl_id', 'name', 'bvl_id', 'cas', 'chebiid',
                        'chemspiderid', 'dtxsid',  'formula', 'inchi',
                        'inchikey', 'norman_susdat_id',
                        'pubchem_cid', 'smiles'))
+  match_query = match.arg(match_query, choices = c('fuzzy', 'exact'))
   # filter
   if (match_query == 'exact') {
     out = out[ get(from) %in% query ]

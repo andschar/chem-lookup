@@ -12,7 +12,7 @@ cl_query(query = NULL, from = NULL, match_query = "exact")
 \item{from}{Which identifier should the query string be matched against? See
 details for more information.}
 
-\item{match_query}{Should the query be matched exactly (defau) or fuzzily?}
+\item{match_query}{Should the query be matched exactly (default) or fuzzily?}
 }
 \value{
 Returns a data.table with matched identifiers and chemical
