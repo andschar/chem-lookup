@@ -22,9 +22,9 @@ fl_download = function() {
   con = DBI::dbConnect(RSQLite::SQLite(), destfile)
   # TODO convert the whole process to actual SQL queries at some point.
   cl_id = DBI::dbGetQuery(con, "SELECT * FROM cl_id")
-  setDT(cl_id)
+  data.table::setDT(cl_id)
   cl_class = DBI::dbGetQuery(con, "SELECT * FROM cl_class")
-  setDT(cl_class)
+  data.table::setDT(cl_class)
   DBI::dbDisconnect(con)
   
   return(list(cl_id = cl_id,

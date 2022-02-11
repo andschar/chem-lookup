@@ -17,9 +17,10 @@ Imports:
     data.table (>= 1.13.0),
     DBI,
     RSQLite,
+    R.utils,
     utils
 License: MIT + file LICENSE
-URL: https://github.com/andschar/chem-lookup
-BugReports: https://github.com/andschar/chem-lookup/issues
+URL: https://github.com/andschar/chemlook
+BugReports: https://github.com/andschar/chemlook/issues
 RoxygenNote: 7.1.1
 Encoding: UTF-8
