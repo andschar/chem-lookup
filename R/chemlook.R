@@ -8,7 +8,11 @@ fl_download = function() {
   tmp = file.path(tempdir(), 'chemlook.sqlite3')
   if (!file.exists(tmp)) {
     message('Downloading data..')
-    qurl = 'https://zenodo.org/record/6044681/files/chemlook.sqlite3'
+    # HACK this has to done, because doi.org is the only permanent link between versions
+    qurl_permanent = 'https://doi.org/10.5281/zenodo.5947274'
+    req = httr::GET(qurl_permanent)
+    cont = httr::content(req, as = 'text')
+    qurl = regmatches(cont, regexpr('https://zenodo.org/record/[0-9]+/files/chemlook.sqlite3', cont))
     utils::download.file(qurl,
                          destfile = tmp,
                          quiet = TRUE)
