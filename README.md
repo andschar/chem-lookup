@@ -37,8 +37,8 @@ as a SQLite file.
 
 | table         | description |
 |:--------------|:------------|
-| cl_class.tsv  | Containing chemical classification information |
-| cl_id.tsv     | Table of identifiers |
+| cl_class      | Containing chemical classification information |
+| cl_id         | Table of identifiers |
 
 The tables can be merged via the unique key column `cl_id`.
 
