@@ -5,19 +5,21 @@
 #' @noRd
 #' 
 fl_download = function() {
-  tmp = file.path(tempdir(), 'chemlook.sqlite3')
+  tmp = file.path(tempdir(), 'chemlook.sqlite3.gz')
   if (!file.exists(tmp)) {
     message('Downloading data..')
     # HACK this has to done, because doi.org is the only permanent link between versions
     qurl_permanent = 'https://doi.org/10.5281/zenodo.5947274'
     req = httr::GET(qurl_permanent)
     cont = httr::content(req, as = 'text')
-    qurl = regmatches(cont, regexpr('https://zenodo.org/record/[0-9]+/files/chemlook.sqlite3', cont))
+    qurl = regmatches(cont, regexpr('https://zenodo.org/record/[0-9]+/files/chemlook.sqlite3.gz', cont))
     utils::download.file(qurl,
                          destfile = tmp,
                          quiet = TRUE)
   }
-  con = DBI::dbConnect(RSQLite::SQLite(), tmp)
+  destfile = file.path(tempdir(), 'chemlook.sqlite3')
+  R.utils::gunzip(tmp, destname = destfile)
+  con = DBI::dbConnect(RSQLite::SQLite(), destfile)
   # TODO convert the whole process to actual SQL queries at some point.
   cl_id = DBI::dbGetQuery(con, "SELECT * FROM cl_id")
   setDT(cl_id)
