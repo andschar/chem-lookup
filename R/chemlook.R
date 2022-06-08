@@ -21,14 +21,11 @@ fl_download = function() {
   }
   con = DBI::dbConnect(RSQLite::SQLite(), destfile)
   # TODO convert the whole process to actual SQL queries at some point.
-  cl_id = DBI::dbGetQuery(con, "SELECT * FROM cl_id")
-  data.table::setDT(cl_id)
-  cl_class = DBI::dbGetQuery(con, "SELECT * FROM cl_class")
-  data.table::setDT(cl_class)
+  cl_data = DBI::dbGetQuery(con, "SELECT * FROM cl_data")
+  data.table::setDT(cl_data)
   DBI::dbDisconnect(con)
   
-  return(list(cl_id = cl_id,
-              cl_class = cl_class))
+  return(cl_data)
 }
 
 #' Query the chemical lookup up database..
@@ -73,8 +70,7 @@ cl_query = function(query = NULL,
                     from = NULL,
                     match_query = 'exact') {
   # data
-  l = fl_download()
-  out = merge(l$cl_id, l$cl_class, by = 'cl_id', all.x = TRUE)
+  out = fl_download()
   # checks
   if (is.null(query)) {
     message('No query string supplied. All entries are returned.')

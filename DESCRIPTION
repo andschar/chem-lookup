@@ -1,6 +1,6 @@
 Package: chemlook
-Version: 0.0.2
-Date: 2022-02-18
+Version: 0.0.3
+Date: 2022-06-08
 Title: Chemical Information Database
 Authors@R: c(
     person("Andreas", "Scharmüller",
@@ -22,5 +22,5 @@ Imports:
 License: MIT + file LICENSE
 URL: https://github.com/andschar/chemlook
 BugReports: https://github.com/andschar/chemlook/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8
