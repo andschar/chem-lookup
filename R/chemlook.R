@@ -4,10 +4,10 @@
 #' 
 #' @noRd
 #' 
-fl_download = function() {
+fl_download = function(force_download) {
   destfile_gz = file.path(tempdir(), 'chemlook.sqlite3.gz')
   destfile = file.path(tempdir(), 'chemlook.sqlite3')
-  if (!file.exists(destfile_gz) && !file.exists(destfile)) {
+  if (!file.exists(destfile_gz) && !file.exists(destfile) || force_download) {
     message('Downloading data..')
     # HACK this has to done, because doi.org is the only permanent link between versions
     qurl_permanent = 'https://doi.org/10.5281/zenodo.5947274'
@@ -36,6 +36,7 @@ fl_download = function() {
 #' @param from Which identifier should the query string be matched against? See
 #' details for more information.
 #' @param match_query Should the query be matched exactly (default) or fuzzily?
+#' @param force_download Force download anyway? Helpful if downloaded file is corrupt.
 #'
 #' @details The from argument can be one of the following identifiers: 
 #' \itemize{
@@ -68,9 +69,10 @@ fl_download = function() {
 #' 
 cl_query = function(query = NULL,
                     from = NULL,
-                    match_query = 'exact') {
+                    match_query = 'exact',
+                    force_download = FALSE) {
   # data
-  out = fl_download()
+  out = fl_download(force_download = force_download)
   # checks
   if (is.null(query)) {
     message('No query string supplied. All entries are returned.')

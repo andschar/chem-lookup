@@ -1,6 +1,6 @@
 Package: chemlook
-Version: 0.0.3
-Date: 2022-06-08
+Version: 0.0.4
+Date: 2022-08-09
 Title: Chemical Information Database
 Authors@R: c(
     person("Andreas", "Scharmüller",

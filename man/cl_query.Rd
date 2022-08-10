@@ -4,7 +4,12 @@
 \alias{cl_query}
 \title{Query the chemical lookup up database..}
 \usage{
-cl_query(query = NULL, from = NULL, match_query = "exact")
+cl_query(
+  query = NULL,
+  from = NULL,
+  match_query = "exact",
+  force_download = FALSE
+)
 }
 \arguments{
 \item{query}{A query string.}
@@ -13,6 +18,8 @@ cl_query(query = NULL, from = NULL, match_query = "exact")
 details for more information.}
 
 \item{match_query}{Should the query be matched exactly (default) or fuzzily?}
+
+\item{force_download}{Force download anyway? Helpful if downloaded file is corrupt.}
 }
 \value{
 Returns a data.table with matched identifiers and chemical
