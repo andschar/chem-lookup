@@ -1,14 +1,14 @@
 Package: chemlook
-Version: 0.0.4
-Date: 2022-08-09
+Version: 0.0.5
+Date: 2022-11-24
 Title: Chemical Information Database
 Authors@R: c(
     person("Andreas", "Scharmüller",
             role = c("aut", "cre"),
-            email = "andschar@protonmail.com",
+            email = "andschar@proton.me",
             comment = c(ORCID = "0000-0002-9290-3965"))
     )
-Maintainer: Andreas Scharmüller <andschar@protonmail.com>
+Maintainer: Andreas Scharmüller <andschar@proton.me>
 Description: Chemical Lookup is a database and repository containing tabular information on
     chemicals including identifiers to other databases, their role and classification.
 Depends:
@@ -22,5 +22,5 @@ Imports:
 License: MIT + file LICENSE
 URL: https://github.com/andschar/chemlook
 BugReports: https://github.com/andschar/chemlook/issues
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Encoding: UTF-8

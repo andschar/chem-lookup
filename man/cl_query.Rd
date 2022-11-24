@@ -6,30 +6,33 @@
 \usage{
 cl_query(
   query = NULL,
+  query_match = "exact",
   from = NULL,
-  match_query = "exact",
+  what = "id",
   force_download = FALSE
 )
 }
 \arguments{
 \item{query}{A query string.}
 
+\item{query_match}{Should the query be matched exactly (default) or fuzzily?}
+
 \item{from}{Which identifier should the query string be matched against? See
 details for more information.}
 
-\item{match_query}{Should the query be matched exactly (default) or fuzzily?}
+\item{what}{What should be returned? Can be one of 'id' (default), 'class'
+and 'prop'.}
 
 \item{force_download}{Force download anyway? Helpful if downloaded file is corrupt.}
 }
 \value{
-Returns a data.table with matched identifiers and chemical
-classification. The chemical classification column is of type list.
+Returns a data.table.
 }
 \description{
 Query the chemical lookup up database..
 }
 \details{
-The from argument can be one of the following identifiers: 
+The from argument can be one of the following identifiers:
 \itemize{
   \item \code{'cl_id'} - chemlook identifier
   \item \code{'name'} - Chemical common name
@@ -50,8 +53,10 @@ The from argument can be one of the following identifiers:
 \examples{
 query = c('1071-83-6', '100-00-5')
 cl_query(query, from = 'cas')
+query = 'glyph'
+cl_query(query, query_match = 'fuzzy')
 
 }
 \author{
-Andreas Scharmueller \email{andschar@protonmail.com}
+Andreas Scharmueller \email{andschar@proton.me}
 }

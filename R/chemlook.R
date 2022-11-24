@@ -1,44 +1,86 @@
 #' Download compressed database.
-#' 
-#' @author Andreas Scharmueller \email{andschar@@protonmail.com}
-#' 
+#'
+#' @author Andreas Scharmueller \email{andschar@@proton.me}
+#'
 #' @noRd
-#' 
+#'
 fl_download = function(force_download) {
   destfile_gz = file.path(tempdir(), 'chemlook.sqlite3.gz')
   destfile = file.path(tempdir(), 'chemlook.sqlite3')
-  if (!file.exists(destfile_gz) && !file.exists(destfile) || force_download) {
+  if (!file.exists(destfile_gz) &&
+      !file.exists(destfile) || force_download) {
     message('Downloading data..')
     # HACK this has to done, because doi.org is the only permanent link between versions
     qurl_permanent = 'https://doi.org/10.5281/zenodo.5947274'
     req = httr::GET(qurl_permanent)
     cont = httr::content(req, as = 'text')
-    qurl = regmatches(cont, regexpr('https://zenodo.org/record/[0-9]+/files/chemlook.sqlite3.gz', cont))
+    qurl = regmatches(
+      cont,
+      regexpr(
+        'https://zenodo.org/record/[0-9]+/files/chemlook.sqlite3.gz',
+        cont
+      )
+    )
     utils::download.file(qurl,
                          destfile = destfile_gz,
                          quiet = TRUE)
     R.utils::gunzip(destfile_gz, destname = destfile)
   }
-  con = DBI::dbConnect(RSQLite::SQLite(), destfile)
-  # TODO convert the whole process to actual SQL queries at some point.
-  cl_data = DBI::dbGetQuery(con, "SELECT * FROM cl_data")
-  data.table::setDT(cl_data)
+  
+  return(destfile)
+}
+
+#' Read compressed database.
+#'
+#' @author Andreas Scharmueller \email{andschar@@proton.me}
+#'
+#' @noRd
+#'
+fl_read = function(fl,
+                   from,
+                   what,
+                   query,
+                   query_match) {
+  con = DBI::dbConnect(RSQLite::SQLite(), fl)
+  q = "SELECT * FROM (SELECT cl_id, name FROM cl_id) t1" # basequery
+  if ('id' %in% what) {
+    q = sub(', name', '', q, fixed = TRUE) # HACK
+    q = paste(q, "LEFT JOIN cl_id USING (cl_id)", sep = '\n')
+  }
+  if ('class' %in% what) {
+    q = paste(q, "LEFT JOIN cl_class USING (cl_id)", sep = '\n')
+  }
+  if ('prop' %in% what) {
+    q = paste(q, "LEFT JOIN cl_prop USING (cl_id)", sep = '\n')
+  }
+  if (!is.null(query)) {
+    if (query_match == 'exact') {
+      q = paste(q, paste0("WHERE ", from, " IS '", query, "' "), sep = '\n')
+    }
+    if (query_match == 'fuzzy') {
+      q = paste(q, paste0("WHERE ", from, " LIKE '%", query, "%' "), sep = '\n')
+    }
+  }
+  out = DBI::dbGetQuery(con, q)
+  data.table::setDT(out)
   DBI::dbDisconnect(con)
   
-  return(cl_data)
+  return(out)
 }
 
 #' Query the chemical lookup up database..
-#' 
+#'
 #' @import data.table
-#' 
+#'
 #' @param query A query string.
+#' @param query_match Should the query be matched exactly (default) or fuzzily?
 #' @param from Which identifier should the query string be matched against? See
 #' details for more information.
-#' @param match_query Should the query be matched exactly (default) or fuzzily?
+#' @param what What should be returned? Can be one of 'id' (default), 'class'
+#' and 'prop'.
 #' @param force_download Force download anyway? Helpful if downloaded file is corrupt.
 #'
-#' @details The from argument can be one of the following identifiers: 
+#' @details The from argument can be one of the following identifiers:
 #' \itemize{
 #'   \item \code{'cl_id'} - chemlook identifier
 #'   \item \code{'name'} - Chemical common name
@@ -56,45 +98,61 @@ fl_download = function(force_download) {
 #'   \item \code{'smiles'} - Smiles
 #' }
 #'
-#' @return Returns a data.table with matched identifiers and chemical
-#' classification. The chemical classification column is of type list.
-#' 
-#' @author Andreas Scharmueller \email{andschar@@protonmail.com}
-#' 
+#' @return Returns a data.table.
+#'
+#' @author Andreas Scharmueller \email{andschar@@proton.me}
+#'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' query = c('1071-83-6', '100-00-5')
 #' cl_query(query, from = 'cas')
-#' 
+#' query = 'glyph'
+#' cl_query(query, query_match = 'fuzzy')
+#'
 cl_query = function(query = NULL,
+                    query_match = 'exact',
                     from = NULL,
-                    match_query = 'exact',
+                    what = 'id',
                     force_download = FALSE) {
-  # data
-  out = fl_download(force_download = force_download)
+  # download
+  fl = fl_download(force_download = force_download)
   # checks
-  if (is.null(query)) {
-    message('No query string supplied. All entries are returned.')
-    return(out)
-  }
   if (!is.null(query) && is.null(from)) {
     stop('Please provide a from argument.')
   }
-  from = match.arg(from, choices = 
-                     c('cl_id', 'name', 'bvl_id', 'cas', 'chebiid',
-                       'chemspiderid', 'dtxsid',  'formula', 'inchi',
-                       'inchikey', 'norman_susdat_id',
-                       'pubchem_cid', 'smiles'))
-  match_query = match.arg(match_query, choices = c('fuzzy', 'exact'))
-  # filter
-  if (match_query == 'exact') {
-    out = out[ get(from) %in% query ]
+  query_match = match.arg(query_match, choices = c('fuzzy', 'exact'))
+  from = match.arg(
+    from,
+    choices =
+      c(
+        'cl_id',
+        'name',
+        'bvl_id',
+        'cas',
+        'chebiid',
+        'chemspiderid',
+        'dtxsid',
+        'formula',
+        'inchi',
+        'inchikey',
+        'norman_susdat_id',
+        'pubchem_cid',
+        'smiles'
+      )
+  )
+  what = match.arg(what,
+                   choices = c('id', 'class', 'prop'),
+                   several.ok = TRUE)
+  if (query_match == 'fuzzy' && from != 'name') {
+    stop("Fuzzy matching only works with from = 'name'.")
   }
-  if (match_query == 'fuzzy') {
-    out = out[ get(from) %ilike% paste0(query, collapse = '|') ]
-  } 
+  # read
+  out = fl_read(fl = fl,
+                from = from,
+                what = what,
+                query = query,
+                query_match = query_match)
   
   return(out)
 }
-
