@@ -42,9 +42,8 @@ fl_read = function(fl,
                    query,
                    query_match) {
   con = DBI::dbConnect(RSQLite::SQLite(), fl)
-  q = "SELECT * FROM (SELECT cl_id, name FROM cl_id) t1" # basequery
+  q = "SELECT * FROM (SELECT cl_id FROM cl_id) t1" # basequery
   if ('id' %in% what) {
-    q = sub(', name', '', q, fixed = TRUE) # HACK
     q = paste(q, "LEFT JOIN cl_id USING (cl_id)", sep = '\n')
   }
   if ('class' %in% what) {
