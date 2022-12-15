@@ -4,7 +4,7 @@
 #'
 #' @noRd
 #'
-fl_download = function(force_download) {
+fl_download = function(force_download = FALSE) {
   destfile_gz = file.path(tempdir(), 'chemlook.sqlite3.gz')
   destfile = file.path(tempdir(), 'chemlook.sqlite3')
   if (!file.exists(destfile_gz) &&
@@ -37,20 +37,22 @@ fl_download = function(force_download) {
 #' @noRd
 #'
 fl_read = function(fl,
-                   from,
-                   what,
-                   query,
-                   query_match) {
+                   from = NULL,
+                   what = 'id',
+                   query = NULL,
+                   query_match = 'exact') {
   con = DBI::dbConnect(RSQLite::SQLite(), fl)
-  q = "SELECT * FROM (SELECT cl_id FROM cl_id) t1" # basequery
+  # basequery
+  q = paste0("SELECT * FROM (SELECT ", paste0(c('cl_id', from), collapse = ', '), " FROM cl_id) t1")
   if ('id' %in% what) {
-    q = paste(q, "LEFT JOIN cl_id USING (cl_id)", sep = '\n')
+    q = paste(q, "LEFT JOIN cl_id t_id USING (cl_id)", sep = '\n')
+    q = sub(paste0(", ", from), '', q) # HACK
   }
   if ('class' %in% what) {
-    q = paste(q, "LEFT JOIN cl_class USING (cl_id)", sep = '\n')
+    q = paste(q, "LEFT JOIN cl_class t_class USING (cl_id)", sep = '\n')
   }
   if ('prop' %in% what) {
-    q = paste(q, "LEFT JOIN cl_prop USING (cl_id)", sep = '\n')
+    q = paste(q, "LEFT JOIN cl_prop t_prop USING (cl_id)", sep = '\n')
   }
   if (!is.null(query)) {
     if (query_match == 'exact') {
@@ -116,6 +118,7 @@ cl_query = function(query = NULL,
                     force_download = FALSE) {
   # download
   fl = fl_download(force_download = force_download)
+  # fl = '~/Downloads/chemlook.sqlite3' # DEBUG
   # checks
   if (!is.null(query) && is.null(from)) {
     stop('Please provide a from argument.')
