@@ -54,10 +54,10 @@ fl_read = function(fl,
   }
   if (!is.null(query)) {
     if (query_match == 'exact') {
-      q = paste(q, paste0("WHERE ", from, " IS '", query, "' "), sep = '\n')
+      q = paste(q, paste0("WHERE ", from, " IN ('", paste0(query, collapse = "', '"), "') "), sep = '\n')
     }
     if (query_match == 'fuzzy') {
-      q = paste(q, paste0("WHERE ", from, " LIKE '%", query, "%' "), sep = '\n')
+      q = paste(q, paste0("WHERE ", paste0(from, " LIKE '%", query, "%'", collapse = " OR ")), sep = '\n')
     }
   }
   out = DBI::dbGetQuery(con, q)
