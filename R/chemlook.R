@@ -17,7 +17,7 @@ fl_download = function(force_download = FALSE) {
     qurl = regmatches(
       cont,
       regexpr(
-        'https://zenodo.org/record/[0-9]+/files/chemlook.sqlite3.gz',
+        'https://zenodo.org/records/[0-9]+/files/chemlook.sqlite3.gz',
         cont
       )
     )
